@@ -59,7 +59,29 @@ Problem -> Remedy -> Personalized Action.
 
 The platform computes astrological charts, ingests curated astrologer transcripts, extracts remedy intelligence, maps remedies to user chart conditions, and presents practical guidance with strong privacy, moderation, and ethical guardrails.
 
-The current repository source of truth is `astrology_remedy_platform_exhaustive_brd.md`. Treat that BRD as product context unless a ticket explicitly overrides it.
+Use repo-owned docs in this order:
+
+1. `WORKFLOW.md`: Symphony/Codex runtime contract, issue prompt, tracker states, and operating rules.
+2. Linear issue: executable task scope and acceptance criteria for this agent run.
+3. `astrology_remedy_platform_exhaustive_brd.md`: product requirements source of truth.
+4. `docs/mvp-architecture-and-definition.md`: concise MVP scope, architecture, routes, modules, data model, and guardrails.
+5. `docs/agentic-delivery-model.md`: Symphony delivery model, ticket decomposition, guardrails, and roadmap details.
+6. `docs/symphony-codex-cli-runbook.md`: local setup and operator instructions.
+
+If a Linear issue conflicts with the BRD or delivery docs, follow the issue only when it is explicit. Otherwise preserve the repo docs and call out the ambiguity in the handoff.
+
+## Linear Workflow
+
+Recommended states are:
+
+- `Todo`: ready for Symphony dispatch.
+- `In Progress`: active Codex workspace.
+- `Rework`: Codex should address review feedback.
+- `Human Review`: agent finished; person must review remedies, content, privacy, or product behavior.
+- `Merging`: approved and being landed.
+- `Done`: complete.
+
+This workflow dispatches `Todo`, `In Progress`, and `Rework`. Do not mark work as `Done` unless the issue explicitly asks and the repository workflow supports that transition.
 
 ## Working Rules
 
@@ -67,11 +89,18 @@ The current repository source of truth is `astrology_remedy_platform_exhaustive_
 - Prefer implementation plans that can be reviewed incrementally.
 - Preserve spiritual and astrology language while avoiding medical, legal, financial, or fear-based guarantees.
 - Keep user data privacy central, especially birth details, location, subscription data, and saved charts.
+- Treat birth details, place, chart snapshots, saved profiles, and subscription metadata as sensitive data.
 - Use deterministic astrology computation for chart math; use AI for interpretation, extraction, retrieval, summarization, and drafting.
+- Keep chart computation separate from remedy matching.
+- Keep content ingestion separate from user-facing retrieval.
+- Keep AI outputs reviewable and editable by an admin.
+- Require source citations for transcript-derived claims and remedies.
+- Respect copyright and attribution constraints for transcripts; do not assume full transcript republishing is allowed.
 - Add tests or verification notes proportionate to the risk of the change.
 - If a ticket is too ambiguous to implement safely, produce a short implementation plan and call out the missing decisions.
 - If the work touches transcript ingestion, include copyright and attribution considerations.
 - If the work touches remedies or interpretations, include human review, citation, and disclaimer requirements.
+- If the work touches automation, ensure agents create drafts or jobs rather than auto-publishing user-facing astrology guidance unless the issue explicitly changes that policy.
 
 ## Expected Handoff
 
@@ -82,4 +111,3 @@ Before finishing, provide:
 - How you verified it.
 - Remaining risks or decisions.
 - Any follow-up issues worth creating.
-

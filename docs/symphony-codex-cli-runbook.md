@@ -8,6 +8,16 @@ Symphony watches an issue tracker, creates one isolated workspace per issue, and
 
 For ARIP, Symphony should be used for implementation tickets, research tickets, schema/design tasks, content-pipeline work, QA follow-ups, and small product iterations. Keep high-ambiguity product strategy decisions in human review before dispatching implementation work.
 
+## Repo-Owned Context
+
+- `WORKFLOW.md`: concise Symphony/Codex runtime prompt and config.
+- `astrology_remedy_platform_exhaustive_brd.md`: product requirements source of truth.
+- `docs/mvp-architecture-and-definition.md`: concise MVP architecture, scope, routes, modules, data model, and guardrails for implementation tickets.
+- `docs/agentic-delivery-model.md`: detailed Symphony delivery model, Linear ticket design, automation architecture, product guardrails, and technical roadmap.
+- Linear issues: executable task queue for Symphony.
+
+Future Codex agents should not rely on chat history. Put product decisions in the BRD, operating decisions in `WORKFLOW.md` or this runbook, and scoped execution details in Linear.
+
 ## Required Local Setup
 
 1. Install and authenticate Codex CLI.
@@ -71,6 +81,8 @@ Use these states for a simple ARIP loop:
 
 The current `WORKFLOW.md` dispatches `Todo`, `In Progress`, and `Rework`, and treats `Done`, `Closed`, `Cancelled`, `Canceled`, and `Duplicate` as terminal.
 
+Do not dispatch `Human Review` or `Merging` by default. Those states are intended for people or merge automation.
+
 ## Ticket Shape
 
 Good Symphony tickets should include:
@@ -80,6 +92,8 @@ Good Symphony tickets should include:
 - Acceptance criteria.
 - Verification expectation.
 - Any compliance or astrology-domain constraints.
+
+Use `docs/agentic-delivery-model.md` for the full Symphony-ready Linear issue template and task decomposition guidance.
 
 Example:
 
@@ -101,4 +115,6 @@ Acceptance criteria:
 - Keep concurrency low until the repo has automated tests and a working implementation scaffold.
 - Require human review for astrology interpretation, remedy safety language, subscription/payment changes, and user-data handling.
 - Prefer research/design tickets before implementation when the stack is not yet chosen.
-
+- Require source citations for transcript-derived remedy claims.
+- Protect birth details, place data, saved chart data, and subscription metadata.
+- Respect transcript copyright and attribution; avoid exposing long transcript passages unless rights are clear.
