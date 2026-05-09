@@ -32,7 +32,7 @@ agent:
   max_concurrent_agents_by_state:
     rework: 1
 codex:
-  command: codex app-server
+  command: codex --config 'model="gpt-5.2"' app-server
   approval_policy: on-request
   thread_sandbox: workspace-write
   turn_timeout_ms: 3600000
