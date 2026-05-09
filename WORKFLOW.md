@@ -2,7 +2,7 @@
 tracker:
   kind: linear
   api_key: $LINEAR_API_KEY
-  project_slug: astro-remedy
+  project_slug: astro-remedy-32d8f67c8e5e
   active_states:
     - Todo
     - In Progress
@@ -111,3 +111,28 @@ Before finishing, provide:
 - How you verified it.
 - Remaining risks or decisions.
 - Any follow-up issues worth creating.
+
+## Daily EOD Project Update
+
+At the end of each operating day, Symphony or the designated project-manager agent must produce a project update for the human owner and `agent-product-manager`.
+
+Default schedule:
+
+- Time: 21:30 Asia/Kolkata.
+- Audience: human owner and `agent-product-manager`.
+- Source of truth: Linear project `astro-remedy`, this repo, and the latest agent handoffs.
+
+The update must include:
+
+- Date and reporting window.
+- Executive summary in 3-5 bullets.
+- Issues completed today.
+- Issues in progress and current owner/agent, if known.
+- Blocked or risky issues.
+- New decisions made.
+- Verification/build/test status.
+- Safety/privacy/citation concerns.
+- Tomorrow's recommended dispatch queue.
+- Questions requiring human/product-manager review.
+
+Keep it concise, factual, and PM-readable. Do not include secrets, raw birth data, private chart data, or long transcript text.
