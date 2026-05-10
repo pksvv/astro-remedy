@@ -14,7 +14,7 @@ tracker:
     - Canceled
     - Duplicate
 polling:
-  interval_ms: 30000
+  interval_ms: 60000
 workspace:
   root: ~/code/symphony-workspaces/astro-remedy
 hooks:
@@ -26,20 +26,20 @@ hooks:
     git status --short
   timeout_ms: 60000
 agent:
-  max_concurrent_agents: 3
-  max_turns: 12
+  max_concurrent_agents: 1
+  max_turns: 4
   max_retry_backoff_ms: 300000
   max_concurrent_agents_by_state:
     rework: 1
 codex:
-  command: codex app-server
+  command: codex --config 'model="gpt-5.4-mini"' --config model_reasoning_effort=medium app-server
   approval_policy: on-request
   thread_sandbox: workspace-write
   turn_timeout_ms: 3600000
   read_timeout_ms: 5000
   stall_timeout_ms: 300000
 ---
-# ARIP Symphony Workflow
+# ARIP Symphony Workflow # codex --config 'model="gpt-5.5"' app-server
 
 You are Codex working on the Astrology Remedy Intelligence Platform (ARIP) from a Symphony-controlled issue.
 
