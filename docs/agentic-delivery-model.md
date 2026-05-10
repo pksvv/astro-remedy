@@ -36,8 +36,45 @@ Recommended flow:
 5. Codex reads the ticket, checks relevant repo docs, implements scoped changes, runs verification, and reports a handoff.
 6. Ticket moves to `Human Review`.
 7. Human review either approves for `Merging`, sends to `Rework`, or creates follow-up tickets.
+8. At end of day, Symphony or a designated project-manager agent produces the daily project update for the human owner and `agent-product-manager`.
 
 Codex should not rely on previous chat memory. Every ticket must contain enough context or point to a repo doc section.
+
+## Daily Project Update Contract
+
+The project must produce one PM-readable update every operating day.
+
+Default schedule:
+
+- 21:30 Asia/Kolkata.
+- Project: `astro-remedy`.
+- Audience: human owner and `agent-product-manager`.
+
+Inputs:
+
+- Linear issue states, due dates, blockers, and recent changes.
+- Symphony/Codex handoffs.
+- Repo changes and verification results when available.
+- Human review decisions.
+
+Required sections:
+
+- Executive summary.
+- Completed today.
+- In progress.
+- Blocked or at risk.
+- Decisions made.
+- Verification/build/test status.
+- Safety/privacy/citation concerns.
+- Tomorrow's recommended dispatch queue.
+- Questions for human or `agent-product-manager`.
+
+Rules:
+
+- Keep it short and operational.
+- Prefer issue IDs and concrete next actions.
+- Do not include secrets, raw birth details, private chart data, subscription data, or long transcript text.
+- Clearly separate MVP work from post-MVP work.
 
 ## Recommended Linear States
 
@@ -209,9 +246,11 @@ MVP automation runtime:
 
 Initial job types:
 
+- `SLACK_VIDEO_INTAKE`: parse approved Slack channel messages for video IDs/URLs and create deduped video intake items.
 - `TRANSCRIPT_PROCESSING`: normalize transcript text and chunk it.
 - `REMEDY_EXTRACTION`: create draft remedy snippets with source references.
 - `BLOG_DRAFT`: create draft SEO content from approved remedies.
+- `SOCIAL_DRAFT`: create channel-specific social drafts from approved remedies and blog content.
 - `ANALYTICS_SUMMARY`: summarize usage and content performance.
 - `REVIEW_REMINDER`: surface stale drafts or failed jobs for human action.
 
@@ -219,6 +258,7 @@ Automation policy:
 
 - Agents may create drafts, tags, citations, summaries, and review tasks.
 - Agents should not auto-publish remedies or interpretation pages by default.
+- Slack intake may create video intake records and transcript jobs, but must not publish remedies without review.
 - Agents may auto-publish only low-risk operational artifacts if a future ticket explicitly changes the policy.
 - All generated user-facing astrology guidance must remain editable and traceable.
 
@@ -246,9 +286,11 @@ Future runtime options:
 - `services/remedies`: remedy extraction, review workflow, publication.
 - `services/matching`: deterministic remedy matching and scoring.
 - `services/ai`: provider adapters and prompt wrappers.
-- `services/jobs`: durable job queue and runner.
-- `services/agents`: typed agent actions that create drafts or jobs.
-- `services/analytics`: event capture and summaries.
+- `services/jobs`: post-MVP durable job queue and runner.
+- `services/agents`: post-MVP typed agent actions that create drafts or jobs.
+- `services/analytics`: post-MVP event capture and summaries.
+- `services/slack-intake`: post-MVP approved Slack channel parsing, video ID extraction, dedupe, and intake job creation.
+- `services/content-marketing`: post-MVP SEO/blog/social draft generation from approved remedies and citations.
 
 ### MVP Data Concepts
 
@@ -259,8 +301,10 @@ Future runtime options:
 - Chart snapshot: computed or placeholder chart output, engine version, metadata.
 - Match result: selected remedies, explanation, confidence score, citations, disclaimer.
 - Blog post: slug, title, body, status, source remedy links, SEO metadata.
-- Job: type, status, payload, output, error, retry count, scheduled/completed timestamps.
-- Analytics event: event name, timestamp, anonymous/session/user reference, minimal payload.
+- Job: post-MVP type, status, payload, output, error, retry count, scheduled/completed timestamps.
+- Analytics event: post-MVP event name, timestamp, anonymous/session/user reference, minimal payload.
+- Video intake item: post-MVP Slack message metadata, video ID/URL, dedupe key, status, transcript job reference.
+- Marketing draft: post-MVP target channel, format, source citations, draft body, review status.
 
 ### MVP Implementation Order
 
@@ -270,10 +314,17 @@ Future runtime options:
 4. User birth details and remedy finder flow.
 5. Remedy matching engine.
 6. Blog/SEO pages.
-7. Basic analytics and logging.
-8. Automation engine and background workflows.
-9. Deployment readiness.
-10. Future agent expansion hooks.
+7. Deployment readiness.
+8. MVP end-to-end QA and safety guardrails.
+
+### Post-MVP Implementation Order
+
+1. Basic analytics and logging.
+2. Automation engine and background workflows.
+3. Slack video intake automation.
+4. SEO/blog/social draft automation.
+5. Future agent expansion hooks.
+6. Short-form video generation pipeline.
 
 ### Acceptance Defaults
 

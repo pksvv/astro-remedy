@@ -6,16 +6,182 @@ This document is the concise implementation north star for Codex agents working 
 
 ## MVP Definition
 
-The MVP is a mobile-first web application that proves this loop:
+The MVP is a mobile-first web application that proves only this loop:
 
-1. Admin manually adds curated astrologer transcript content.
-2. System creates reviewable draft remedy snippets from that content.
-3. Admin reviews, edits, and publishes remedy snippets.
-4. User enters birth details and chooses a problem category.
-5. System creates a basic chart snapshot through a replaceable astrology service.
-6. System matches the request to published remedy snippets.
-7. User sees spiritual/self-reflection guidance with source citations, confidence, and disclaimers.
-8. Background jobs prepare the platform for automated ingestion, extraction, drafting, analytics, and review queues.
+1. Transcript ingestion.
+2. Basic chart computation.
+3. Remedy matching.
+4. Simple results page.
+5. Basic SEO blog pages.
+
+Do not build everything in the first MVP. Complex agents, auto-posting, advanced video generation, D60-level astrology, mobile apps, and community features are explicitly post-MVP.
+
+## High-Level Product Flow
+
+This is the long-term product machine:
+
+```text
+YouTube Videos
+  -> Transcript Extraction
+  -> Transcript Intelligence Pipeline
+  -> Knowledge Graph / Remedy DB
+  -> User Birth Details + Problem Input
+  -> Astrology Computation Engine
+  -> Remedy Matching Engine
+  -> Personalized Remedy Output
+  -> SEO + Social + Video Content Generation
+  -> Traffic
+  -> New Users
+  -> More Data + More Engagement
+```
+
+The business loop is:
+
+1. Curated astrologer videos become structured remedy knowledge.
+2. Structured remedy knowledge powers personalized user results.
+3. Approved remedy knowledge also powers SEO/blog/social distribution.
+4. Analytics identifies which topics and categories deserve more ingestion.
+5. Operators or agents feed more videos into Slack/manual intake.
+
+The system should therefore be designed as a content-to-remedy-to-distribution flywheel, not only as a one-off remedy finder. The MVP only implements the smallest useful slice of that flywheel.
+
+## Knowledge Ingestion Flow
+
+```text
+YouTube URL added
+  -> Transcript fetched
+  -> Transcript cleaned
+  -> Transcript chunked
+  -> Astrology entities extracted
+  -> Remedies extracted
+  -> Tagged + stored in DB
+  -> Knowledge graph updated
+```
+
+MVP implementation: manual transcript paste plus deterministic extraction into a remedy DB. Automated YouTube fetching, Slack intake, and knowledge graph updates are post-MVP unless explicitly pulled forward.
+
+## Astrology Computation Flow
+
+```text
+Birth details entered
+  -> Timezone/location resolved
+  -> Planetary positions calculated
+  -> Ascendant calculated
+  -> Houses calculated
+  -> D1/D9/etc generated
+  -> Dashas calculated
+  -> Structured chart JSON created
+```
+
+MVP implementation: basic chart computation or placeholder chart JSON behind a replaceable service interface. Real timezone/location resolution, planetary positions, D9, dashas, and advanced divisional charts are post-MVP.
+
+## Core Computation Stack
+
+Recommended long-term computation stack:
+
+- Python microservice.
+- `pyswisseph`.
+- Swiss Ephemeris.
+- PyJHora references.
+
+MVP default: TypeScript chart service interface with a clearly marked placeholder/basic implementation unless the astrology research ticket proves a real computation library is feasible immediately.
+
+## Remedy Matching Flow
+
+```text
+Chart JSON
+  + Problem category
+  + Knowledge DB
+  -> Matching engine
+  -> Personalized remedies
+```
+
+MVP implementation: deterministic matching from selected problem category, published remedies, source confidence, and basic chart tags.
+
+## User Delivery Flow
+
+```text
+Landing page
+  -> User enters birth details
+  -> Selects issue
+  -> System computes chart
+  -> System retrieves remedies
+  -> Results shown
+  -> Subscription prompt
+```
+
+MVP implementation: no subscription processing; show a simple future subscription prompt or CTA only if trivial.
+
+## Blog/SEO Flow
+
+```text
+Transcript knowledge
+  -> SEO blog generation
+  -> Internal linking
+  -> Google indexing
+  -> Organic traffic
+  -> Users try remedy engine
+```
+
+MVP implementation: basic blog/category pages and internal links. Automated SEO generation is post-MVP.
+
+## Social Media Flow: Awareness Engine
+
+Platforms:
+
+- X
+- Instagram
+- Reddit
+- LinkedIn
+- YouTube Shorts
+
+```text
+Knowledge DB
+  -> Content agent
+  -> Drafts: threads, short posts, carousels, captions, hooks
+  -> Human approval
+  -> Posting
+  -> Traffic to website
+```
+
+MVP implementation: out of scope except documenting future hooks. No auto-posting.
+
+## Video Generation Flow
+
+This is the future virality engine:
+
+```text
+Transcript chunk
+  -> Script generator
+  -> Storyboard generator
+  -> Visual prompt generator
+  -> Caption generator
+  -> Review UI
+  -> Remotion/FFmpeg render
+  -> Short-form video
+```
+
+MVP implementation: out of scope.
+
+## Analytics Flywheel
+
+Track later:
+
+- most searched problems
+- highest converting remedies
+- highest retention categories
+- best-performing videos
+- SEO winners
+- social winners
+
+```text
+Analytics
+  -> Content prioritization
+  -> More blogs/videos
+  -> More traffic
+```
+
+MVP implementation: optional minimal event logging only if it does not slow the core remedy flow.
 
 ## MVP Problem Categories
 
@@ -42,9 +208,6 @@ Labels shown to users should be gentle and non-fear-based, for example “workpl
 - Deterministic remedy matching by problem category, tags, source confidence, and chart metadata.
 - Results page with explanation, remedies, citations, confidence, and disclaimer.
 - Basic blog and category pages for SEO.
-- Basic analytics events.
-- Postgres-backed jobs and a simple cron/process route for automation readiness.
-- Typed future-agent interfaces that create drafts/jobs only.
 
 ## MVP Out of Scope
 
@@ -52,12 +215,20 @@ Labels shown to users should be gentle and non-fear-based, for example “workpl
 - Automated YouTube crawling.
 - Autonomous social posting.
 - Auto-publishing remedies or personalized interpretations.
+- Fully automated Slack production bot that publishes or approves content without review.
 - Payments and subscriptions.
 - User accounts and saved profiles.
 - Advanced D9/D10/D60 charts.
 - Full dasha/transit computation.
 - Vector database or knowledge graph.
 - Native app/PWA polish.
+- Complex agents.
+- Slack video intake automation.
+- SEO/social draft automation.
+- Advanced video generation.
+- Remotion/FFmpeg rendering.
+- Auto-posting.
+- Community features.
 
 ## Architecture Principles
 
@@ -93,9 +264,11 @@ Labels shown to users should be gentle and non-fear-based, for example “workpl
 - `services/remedies/`: remedy extraction, review workflow, publication.
 - `services/matching/`: deterministic matching and scoring.
 - `services/ai/`: model provider adapters and prompt wrappers.
-- `services/jobs/`: durable job queue and runner.
-- `services/agents/`: future agent actions that create drafts/jobs.
-- `services/analytics/`: event capture and summaries.
+- `services/jobs/`: post-MVP durable job queue and runner.
+- `services/agents/`: post-MVP agent actions that create drafts/jobs.
+- `services/analytics/`: post-MVP event capture and summaries.
+- `services/slack-intake/`: post-MVP Slack channel parsing and video ingestion queue creation.
+- `services/content-marketing/`: post-MVP SEO/blog/social draft generation from approved remedies.
 - `prisma/`: schema, migrations, and seed data.
 - `content/`: static starter content if used before DB-backed content is ready.
 - `docs/`: architecture notes, ADRs, runbooks, QA notes.
@@ -111,8 +284,10 @@ Minimum concepts:
 - Chart snapshot: engine name/version, input metadata, placeholder or computed chart data.
 - Match result: selected remedies, explanation, confidence, source citations, disclaimer.
 - Blog post: title, slug, body, status, SEO metadata, related category/remedy links.
-- Job: type, status, payload, output, error, retry count, schedule/completion timestamps.
-- Analytics event: event name, timestamp, anonymous/session/user reference, minimal non-sensitive payload.
+- Job: post-MVP type, status, payload, output, error, retry count, schedule/completion timestamps.
+- Analytics event: post-MVP event name, timestamp, anonymous/session/user reference, minimal non-sensitive payload.
+- Video intake item: post-MVP source channel/message metadata, video ID/URL, status, dedupe key, transcript job reference.
+- Marketing draft: post-MVP channel, format, source remedies, draft body, status, review notes.
 
 ## Public Routes
 
@@ -129,8 +304,8 @@ Minimum concepts:
 - `/admin/transcripts/new`: paste transcript and metadata.
 - `/admin/transcripts/[id]`: transcript detail and draft snippets.
 - `/admin/remedies/[id]/edit`: review/edit/publish remedy.
-- `/admin/automation`: background job queue and failures.
-- `/admin/automation/jobs/[id]`: job details and retry path.
+- `/admin/automation`: post-MVP background job queue and failures.
+- `/admin/automation/jobs/[id]`: post-MVP job details and retry path.
 
 Authentication is out of MVP unless explicitly ticketed. Until auth exists, admin routes are internal/local-only and must not be treated as production-safe.
 
@@ -140,7 +315,7 @@ Authentication is out of MVP unless explicitly ticketed. Until auth exists, admi
 - Remedy APIs must never publish AI/draft output without an explicit reviewed/published status.
 - Remedy finder APIs validate user input and persist only the minimum needed data.
 - Matching APIs load a request, create or fetch a chart snapshot, fetch published remedies, score them, and persist a match result.
-- Cron/job APIs process small batches, record failures, and avoid leaking sensitive payloads in logs.
+- Post-MVP cron/job APIs process small batches, record failures, and avoid leaking sensitive payloads in logs.
 
 ## Matching MVP Rules
 
@@ -167,17 +342,45 @@ Requirements:
 - Clearly mark placeholder output in UI and data.
 - Keep interface compatible with future Swiss Ephemeris/FastAPI implementation.
 
-## Automation MVP Rules
+## Post-MVP Automation Rules
 
-Initial automation should support:
+Post-MVP automation should support:
 
+- Slack video intake jobs.
 - Transcript processing jobs.
 - Remedy extraction jobs.
 - Blog draft jobs.
+- Social draft jobs.
 - Analytics summary jobs.
 - Review reminder jobs.
 
 Agents and jobs create drafts, summaries, tags, citations, and review tasks. They do not auto-publish remedies or personalized interpretations.
+
+## Slack Video Intake Workflow
+
+Target workflow:
+
+1. User drops one or more YouTube video IDs or URLs into an approved Slack channel.
+2. Slack intake service parses each message and extracts video IDs/URLs.
+3. System stores each unique video as a video intake item with Slack message metadata.
+4. System queues transcript extraction for each item.
+5. Transcript extraction stores source metadata, transcript text/chunks, and attribution/copyright notes.
+6. Remedy extraction creates draft remedy snippets linked to transcript chunks.
+7. Admin reviews, edits, and publishes remedy snippets.
+8. Approved remedies can feed matching, blog drafts, and social drafts.
+
+Slack intake is the first automated ingestion expansion after the core MVP and should be designed so it uses the same transcript/remedy services.
+
+## SEO Blog and Social Content Workflow
+
+Target workflow:
+
+1. Approved remedy snippets and transcript citations become the source material.
+2. SEO/blog agent proposes category pages, blog outlines, FAQs, and internal links.
+3. Blog drafts are stored as reviewable content, not auto-published by default.
+4. Social draft agent proposes short posts for X, Instagram, LinkedIn, Reddit, and YouTube Shorts scripts.
+5. Social drafts keep source remedy references and safety notes.
+6. Humans approve publication until a future policy explicitly allows low-risk auto-scheduling.
 
 ## Safety and Compliance Defaults
 
@@ -199,8 +402,14 @@ Agents and jobs create drafts, summaries, tags, citations, and review tasks. The
 6. Build user birth details and remedy finder flow.
 7. Implement remedy matching engine MVP.
 8. Add blog and SEO content pages.
-9. Add basic analytics and logging.
-10. Build automation engine and background job workflow.
-11. Prepare deployment readiness for Vercel and Supabase.
-12. Add future agent hooks and documentation.
-13. QA MVP end-to-end flow and safety guardrails.
+9. Prepare deployment readiness for Vercel and Supabase.
+10. QA MVP end-to-end flow and safety guardrails.
+
+Post-MVP order:
+
+1. Add basic analytics and logging.
+2. Build automation engine and background job workflow.
+3. Design Slack video intake automation.
+4. Expand SEO/blog/social draft automation.
+5. Add future agent hooks and documentation.
+6. Add video generation pipeline.

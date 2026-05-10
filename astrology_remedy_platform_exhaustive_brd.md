@@ -82,6 +82,168 @@ The user receives:
 - spiritual practices
 - astrologer-derived interpretations
 
+## High-Level Product Flow
+
+The intended product machine is:
+
+```text
+YouTube Videos
+  -> Transcript Extraction
+  -> Transcript Intelligence Pipeline
+  -> Knowledge Graph / Remedy DB
+  -> User Birth Details + Problem Input
+  -> Astrology Computation Engine
+  -> Remedy Matching Engine
+  -> Personalized Remedy Output
+  -> SEO + Social + Video Content Generation
+  -> Traffic
+  -> New Users
+  -> More Data + More Engagement
+```
+
+This creates the business flywheel:
+- curated videos become structured remedy knowledge
+- structured remedies power personalized user results
+- approved remedies power SEO/blog/social distribution
+- analytics identifies high-demand topics
+- operators or agents feed more videos into Slack/manual intake
+
+## Core Flow Breakdowns
+
+### Knowledge Ingestion Flow
+
+```text
+YouTube URL added
+  -> Transcript fetched
+  -> Transcript cleaned
+  -> Transcript chunked
+  -> Astrology entities extracted
+  -> Remedies extracted
+  -> Tagged + stored in DB
+  -> Knowledge graph updated
+```
+
+### Astrology Computation Flow
+
+```text
+Birth details entered
+  -> Timezone/location resolved
+  -> Planetary positions calculated
+  -> Ascendant calculated
+  -> Houses calculated
+  -> D1/D9/etc generated
+  -> Dashas calculated
+  -> Structured chart JSON created
+```
+
+Recommended long-term computation stack:
+- Python microservice
+- `pyswisseph`
+- Swiss Ephemeris
+- PyJHora references
+
+### Remedy Matching Flow
+
+```text
+Chart JSON
+  + Problem category
+  + Knowledge DB
+  -> Matching engine
+  -> Personalized remedies
+```
+
+### User Delivery Flow
+
+```text
+Landing page
+  -> User enters birth details
+  -> Selects issue
+  -> System computes chart
+  -> System retrieves remedies
+  -> Results shown
+  -> Subscription prompt
+```
+
+### Blog/SEO Flow
+
+```text
+Transcript knowledge
+  -> SEO blog generation
+  -> Internal linking
+  -> Google indexing
+  -> Organic traffic
+  -> Users try remedy engine
+```
+
+### Social Media Flow: Awareness Engine
+
+Platforms:
+- X
+- Instagram
+- Reddit
+- LinkedIn
+- YouTube Shorts
+
+```text
+Knowledge DB
+  -> Content agent
+  -> Drafts: threads, short posts, carousels, captions, hooks
+  -> Human approval
+  -> Posting
+  -> Traffic to website
+```
+
+### Video Generation Flow
+
+Future virality engine:
+
+```text
+Transcript chunk
+  -> Script generator
+  -> Storyboard generator
+  -> Visual prompt generator
+  -> Caption generator
+  -> Review UI
+  -> Remotion/FFmpeg render
+  -> Short-form video
+```
+
+### Analytics Flywheel
+
+Track later:
+- most searched problems
+- highest converting remedies
+- highest retention categories
+- best-performing videos
+- SEO winners
+- social winners
+
+```text
+Analytics
+  -> Content prioritization
+  -> More blogs/videos
+  -> More traffic
+```
+
+## Recommended MVP Flow
+
+Do not build everything.
+
+MVP should only include:
+1. Transcript ingestion
+2. Basic chart computation
+3. Remedy matching
+4. Simple results page
+5. Basic SEO blog pages
+
+Not included in MVP:
+- complex agents
+- auto-posting
+- advanced video
+- D60
+- mobile apps
+- community features
+
 ---
 
 # 4. Target Audience
@@ -362,8 +524,14 @@ Return:
 
 ## Pipeline
 
+### Intake Sources
+- manual admin paste
+- YouTube link or video ID
+- approved Slack channel where operators can drop multiple video IDs or URLs
+- future video discovery agents
+
 ### Step 1
-User/admin submits YouTube link.
+User/admin submits YouTube link/video ID manually, or an approved Slack channel message contains one or more video IDs/URLs.
 
 ### Step 2
 Transcript extraction.
@@ -455,6 +623,9 @@ Storage/indexing.
 - remedy snippets
 - quote graphics
 - astrology observations
+- short video scripts
+- SEO blog snippets
+- internal-link suggestions
 
 ---
 
@@ -509,6 +680,26 @@ Use Symphony to convert product and engineering tasks into isolated autonomous i
 - track astrologer channels
 - identify trending topics
 - prioritize high-value content
+- process approved Slack channel video IDs/URLs into ingestion candidates
+
+---
+
+# 9.1A Slack Video Intake Agent
+
+## Responsibilities
+- monitor approved Slack channels for video IDs and YouTube URLs
+- parse multiple video IDs from a single message
+- dedupe videos already ingested or queued
+- store Slack message metadata for audit
+- create transcript extraction jobs
+- notify/admin-surface failures and missing transcript cases
+
+## Guardrails
+- only process approved channels
+- never expose Slack message content publicly
+- preserve video source attribution
+- do not publish extracted remedies without human review
+- respect transcript copyright and platform terms
 
 ---
 
@@ -1132,15 +1323,18 @@ The MVP should keep job payloads typed and runtime-agnostic so the orchestration
 
 ## Initial Automated Job Types
 
+- `SLACK_VIDEO_INTAKE`: parse approved Slack channel messages for video IDs/URLs, dedupe, and create video intake records.
 - `TRANSCRIPT_PROCESSING`: normalize transcript text, chunk it, and preserve source references.
 - `REMEDY_EXTRACTION`: create draft remedy snippets with problem categories, tags, confidence, and citations.
 - `BLOG_DRAFT`: create draft SEO content from approved remedies and transcript references.
+- `SOCIAL_DRAFT`: create platform-specific social drafts from approved remedies and citations.
 - `ANALYTICS_SUMMARY`: summarize usage, content performance, and topic opportunities.
 - `REVIEW_REMINDER`: surface stale drafts, failed jobs, or high-risk generated outputs.
 
 ## Automation Policy
 
 - Agents may create drafts, summaries, tags, citations, and review tasks.
+- Slack intake may store video intake records and create transcript jobs from approved channels.
 - Agents should not auto-publish remedies or personalized interpretations by default.
 - Human review is required before user-facing remedy guidance becomes published.
 - AI-generated claims must be traceable to source transcripts, curated content, or deterministic chart data.
@@ -1177,9 +1371,11 @@ Core service boundaries:
 - `services/remedies`: extraction, review workflow, publication
 - `services/matching`: deterministic matching and scoring
 - `services/ai`: model provider adapters and prompt wrappers
-- `services/jobs`: durable job queue and runner
-- `services/agents`: typed agent actions that create drafts or jobs
-- `services/analytics`: event capture and summaries
+- `services/jobs`: post-MVP durable job queue and runner
+- `services/agents`: post-MVP typed agent actions that create drafts or jobs
+- `services/analytics`: post-MVP event capture and summaries
+- `services/slack-intake`: post-MVP approved Slack channel parsing, video ID extraction, dedupe, and intake job creation
+- `services/content-marketing`: post-MVP SEO/blog/social draft generation from approved remedies and citations
 
 MVP implementation order:
 1. Project foundation and architecture
@@ -1188,7 +1384,13 @@ MVP implementation order:
 4. User birth details and remedy finder flow
 5. Remedy matching engine
 6. Blog/SEO pages
-7. Basic analytics and logging
-8. Automation engine and background workflows
-9. Deployment readiness
-10. Future agent expansion hooks
+7. Deployment readiness
+8. MVP end-to-end QA and safety guardrails
+
+Post-MVP implementation order:
+1. Basic analytics and logging
+2. Automation engine and background workflows
+3. Slack video intake automation
+4. SEO/blog/social draft automation
+5. Future agent expansion hooks
+6. Short-form video generation pipeline

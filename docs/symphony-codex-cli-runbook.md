@@ -68,6 +68,62 @@ To enable the optional dashboard:
 mise exec -- ./bin/symphony /Users/admin/code/vipul/astro-remedy/WORKFLOW.md --port 4000
 ```
 
+## Daily EOD Project Update
+
+Every operating day, the always-on Mac mini/Symphony setup should produce a PM-readable end-of-day update for:
+
+- the human owner
+- `agent-product-manager`
+
+Default schedule:
+
+- Time: 21:30 Asia/Kolkata.
+- Project: `astro-remedy`.
+- Primary source: Linear project issues and states.
+- Secondary source: latest Symphony/Codex handoffs and repo changes.
+
+Recommended update format:
+
+```markdown
+# ARIP Daily Project Update - YYYY-MM-DD
+
+## Executive Summary
+- 3-5 bullets on meaningful progress, risk, and next move.
+
+## Completed Today
+- Issue ID: outcome, verification, links if available.
+
+## In Progress
+- Issue ID: current status, owner/agent, expected next action.
+
+## Blocked / At Risk
+- Issue ID: blocker, decision needed, recommended action.
+
+## Product / UX / Technical Decisions
+- Decisions made or proposed today.
+
+## Verification Status
+- Builds, tests, browser checks, or docs-only verification.
+
+## Safety and Compliance Notes
+- Astrology disclaimer, citation, privacy, copyright, or no-fear-language concerns.
+
+## Tomorrow's Dispatch Recommendation
+- Issues to move to `Todo`.
+- Issues to keep in `Backlog`.
+
+## Questions for Human / Agent Product Manager
+- Short list of decisions needed.
+```
+
+Do not include secrets, raw birth data, private chart data, subscription data, or long transcript text.
+
+Implementation options:
+
+- Preferred: create a scheduled PM agent run that queries Linear daily and writes the update to the agreed channel/doc.
+- Fallback: create a daily Linear issue/comment workflow for `agent-product-manager` to review.
+- If Slack is used later, post the same update into the approved project channel.
+
 ## Recommended Linear States
 
 Use these states for a simple ARIP loop:
