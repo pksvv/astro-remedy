@@ -33,7 +33,7 @@ agent:
     rework: 1
 codex:
   command: codex --config 'model="gpt-5.4-mini"' --config model_reasoning_effort=medium app-server
-  approval_policy: on-request
+  approval_policy: never
   thread_sandbox: workspace-write
   turn_timeout_ms: 3600000
   read_timeout_ms: 5000
