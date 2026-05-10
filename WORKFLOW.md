@@ -113,6 +113,20 @@ Before finishing, provide:
 - Remaining risks or decisions.
 - Any follow-up issues worth creating.
 
+## Visibility And Review Trail
+
+- Every Symphony run must leave a durable Linear comment before moving an issue to `Human Review`.
+- Use a single persistent comment headed `## Codex Workpad` as the running work log for the issue.
+- Update that same comment during execution instead of scattering separate comments.
+- Before moving to `Human Review`, the `## Codex Workpad` comment must include:
+  - current status
+  - what changed
+  - verification performed
+  - blockers or remaining risks
+  - explicit recommendation or decision
+- Do not move an issue to `Human Review` without that visible handoff comment.
+- If a task is research or planning only, the comment must still include the final recommendation and evidence used.
+
 ## Daily EOD Project Update
 
 At the end of each operating day, Symphony or the designated project-manager agent must produce a project update for the human owner and `agent-product-manager`.
