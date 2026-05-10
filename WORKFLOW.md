@@ -102,6 +102,9 @@ This workflow dispatches `Todo`, `In Progress`, and `Rework`. Do not mark work a
 - If the work touches transcript ingestion, include copyright and attribution considerations.
 - If the work touches remedies or interpretations, include human review, citation, and disclaimer requirements.
 - If the work touches automation, ensure agents create drafts or jobs rather than auto-publishing user-facing astrology guidance unless the issue explicitly changes that policy.
+- Do not leave important deliverables stranded only inside the Symphony issue workspace.
+- If a ticket creates or updates a durable repo artifact such as a doc, ADR, schema, spec, or code file, the artifact must be committed in the issue workspace and clearly identified in the handoff.
+- If a deliverable is intentionally workspace-only and not ready to land, the handoff must explicitly say that it exists only in the issue workspace, give the exact absolute path, explain why it was not landed, and state the next action required.
 
 ## Expected Handoff
 
@@ -121,9 +124,11 @@ Before finishing, provide:
 - Before moving to `Human Review`, the `## Codex Workpad` comment must include:
   - current status
   - what changed
-  - verification performed
-  - blockers or remaining risks
-  - explicit recommendation or decision
+- verification performed
+- blockers or remaining risks
+- explicit recommendation or decision
+- exact file paths for any new docs or artifacts
+- whether each artifact was landed in the repo, committed only in the issue workspace, or left uncommitted
 - Do not move an issue to `Human Review` without that visible handoff comment.
 - If a task is research or planning only, the comment must still include the final recommendation and evidence used.
 

@@ -8,6 +8,39 @@ Symphony watches an issue tracker, creates one isolated workspace per issue, and
 
 For ARIP, Symphony should be used for implementation tickets, research tickets, schema/design tasks, content-pipeline work, QA follow-ups, and small product iterations. Keep high-ambiguity product strategy decisions in human review before dispatching implementation work.
 
+## Where The Work Lives
+
+Symphony does its work inside per-issue clones under:
+
+```text
+~/code/symphony-workspaces/astro-remedy/<ISSUE-ID>
+```
+
+Example:
+
+```text
+~/code/symphony-workspaces/astro-remedy/DEV-6
+```
+
+That means a Symphony agent can create files that exist in the issue workspace even before those changes are merged or copied back into your main repo checkout.
+
+Operator rule:
+
+- Treat the issue workspace as the live scratch repo for that ticket.
+- Treat your main repo checkout as the stable view.
+- Before approving `Human Review`, confirm whether the reported files exist in the main repo or only in the issue workspace.
+- If an agent mentions a file you cannot see in the main repo, check the corresponding issue workspace path first.
+
+Useful commands:
+
+```bash
+tree ~/code/symphony-workspaces/astro-remedy/DEV-6 -L 3
+git -C ~/code/symphony-workspaces/astro-remedy/DEV-6 status --short
+git -C ~/code/symphony-workspaces/astro-remedy/DEV-6 log --oneline -5
+```
+
+The workflow should not rely on humans guessing this. Agents must say clearly in the handoff whether an artifact was landed in the main repo or exists only in the issue workspace.
+
 ## Repo-Owned Context
 
 - `WORKFLOW.md`: concise Symphony/Codex runtime prompt and config.

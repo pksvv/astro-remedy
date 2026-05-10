@@ -40,6 +40,24 @@ Recommended flow:
 
 Codex should not rely on previous chat memory. Every ticket must contain enough context or point to a repo doc section.
 
+## Workspace Visibility Rule
+
+Symphony creates one cloned repo per issue under the configured workspace root. That is where the agent actually edits files.
+
+Implications:
+
+- A file mentioned in a handoff may exist in the issue workspace even if it is not yet visible in the main repo checkout.
+- Human reviewers should not have to infer this from context.
+- Every handoff must explicitly distinguish between:
+  - landed in the repo branch/workspace and ready to merge
+  - committed only inside the issue workspace
+  - uncommitted or draft-only inside the issue workspace
+
+For research and design tickets:
+
+- If the result is a durable artifact such as an ADR or design doc, prefer landing it as a normal repo file in the issue workspace and naming the exact path in the handoff.
+- Do not send a ticket to `Human Review` with a vague reference to a file path unless the handoff also states where that file currently lives and whether it is merge-ready.
+
 ## Daily Project Update Contract
 
 The project must produce one PM-readable update every operating day.
