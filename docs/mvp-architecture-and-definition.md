@@ -342,6 +342,8 @@ Requirements:
 - Clearly mark placeholder output in UI and data.
 - Keep interface compatible with future Swiss Ephemeris/FastAPI implementation.
 
+Decision detail: see `docs/adr-001-mvp-astrology-computation-strategy.md` for the MVP engine recommendation, chart service input/output contract, placeholder labeling rules, and location/timezone policy.
+
 ## Post-MVP Automation Rules
 
 Post-MVP automation should support:
