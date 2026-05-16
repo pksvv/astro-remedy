@@ -332,15 +332,22 @@ No prompt-only matching logic is allowed for MVP.
 
 ## Astrology MVP Rules
 
-The first chart service may be a deterministic placeholder if real calculation is not feasible in the first slice.
+The first chart service may use a temporary third-party chart provider if that keeps MVP delivery moving. A deterministic placeholder remains an acceptable fallback when vendor/network behavior is unreliable.
 
 Requirements:
 
 - Accept date, time, place text, and timezone metadata.
 - Return a normalized chart snapshot object.
 - Include `engineName`, `engineVersion`, and `isPlaceholder`.
+- Preserve whether the result came from a third-party vendor, placeholder fallback, or future owned engine.
 - Clearly mark placeholder output in UI and data.
-- Keep interface compatible with future Swiss Ephemeris/FastAPI implementation.
+- Keep interface compatible with a future owned astrology computation engine, likely Swiss Ephemeris/FastAPI or equivalent.
+
+Near-term product rule:
+
+- It is acceptable to rely on a third-party chart provider temporarily for MVP learning.
+- It is not the intended long-term architecture to depend permanently on external chart-generation services.
+- A backlog item should track replacing temporary vendor dependence with an in-house computation engine we control.
 
 Decision detail: see `docs/adr-001-mvp-astrology-computation-strategy.md` for the MVP engine recommendation, chart service input/output contract, placeholder labeling rules, and location/timezone policy.
 

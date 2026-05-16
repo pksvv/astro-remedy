@@ -41,6 +41,33 @@ git -C ~/code/symphony-workspaces/astro-remedy/DEV-6 log --oneline -5
 
 The workflow should not rely on humans guessing this. Agents must say clearly in the handoff whether an artifact was landed in the main repo or exists only in the issue workspace.
 
+## Quick Operator Test Loop
+
+Use this when you want to confirm that Symphony is actually picking up a ticket and leaving a useful visible trail without wasting many turns.
+
+1. Put the target issue in `Todo` or `Rework`.
+2. Make the issue request narrow and concrete:
+   - one small deliverable
+   - one verification ask
+   - one explicit output location expectation such as `update the repo file, not a workspace-only draft`
+3. Wait for the `## Codex Workpad` comment.
+4. Reject the run as invalid if the first visible comment is only placeholder text such as `temporary test`, `test`, `starting`, or `wip`.
+5. The first valid visible update should show:
+   - `Run started`
+   - issue ID
+   - absolute workspace path
+   - branch
+   - short SHA
+   - current objective
+   - initial plan
+6. If that does not appear, stop spending more review time on the ticket and fix the workflow/prompt before running broader tasks.
+
+Recommended first live test for `DEV-6`:
+
+- Ask only for a simple ADR rewrite plus one API feasibility check.
+- Require the ADR update to be made in the normal repo file path, not as a workspace-only note.
+- Require the workpad to say whether the API test was actually executed or only documented.
+
 ## Repo-Owned Context
 
 - `WORKFLOW.md`: concise Symphony/Codex runtime prompt and config.

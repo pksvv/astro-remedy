@@ -14,24 +14,26 @@ Chart computation must remain separate from remedy matching. AI must not be used
 
 ## Decision Summary
 
-- MVP approach: a deterministic TypeScript placeholder D1 chart service.
+- MVP approach for now: use a replaceable astrology service interface and allow a third-party chart provider such as FreeAstrologyAPI for short-term delivery.
+- Long-term direction: do not rely permanently on third-party chart-generation vendors; plan to own chart computation ourselves behind the same interface.
 - Replacement interface: a stable `services/astrology` contract that future engines can implement without changing remedy matching callers.
-- Placeholder policy: the service must return clearly labeled placeholder output, accept unresolved location/timezone metadata, and never imply astronomical precision.
+- Fallback policy: if vendor access or quality is unreliable, use a clearly labeled placeholder path rather than implying false precision.
 
 ## Decision
 
-Use a deterministic TypeScript placeholder D1-style chart service for the first MVP implementation, behind a strict `services/astrology` interface that can later be backed by a real astrology engine.
+For the current MVP phase, allow a third-party chart provider such as FreeAstrologyAPI behind a strict `services/astrology` interface so the product can move forward without making custom astrology computation a critical-path blocker.
 
-The placeholder service must:
+The MVP service must:
 
-- Be deterministic for identical normalized inputs.
-- Return only coarse condition tags and structural placeholders needed to exercise the remedy matching pipeline.
-- Set `isPlaceholder: true` and use explicit placeholder metadata on every response.
-- Avoid claims of astronomical precision, real planetary longitude, real ascendant, real house placement, real dasha, or production chart validity.
-- Keep all generated fields labeled as `placeholder`, `unknown`, or `notComputed` unless they are direct normalized inputs.
+- Accept normalized birth inputs plus resolved location/timezone metadata.
 - Be replaceable without changing remedy matching callers.
+- Record `engineName`, `engineVersion`, and enough metadata to distinguish vendor output from placeholder output.
+- Keep a fallback path for unresolved vendor/network/rate-limit situations.
+- Avoid overstating precision when location, timezone, or vendor reliability is uncertain.
 
-The target production replacement remains a Swiss Ephemeris-backed engine, likely exposed through a Python/FastAPI service using `pyswisseph`, unless a later implementation ticket proves a TypeScript-native engine is accurate enough and maintainable.
+This is a temporary delivery choice, not the end-state architecture. The long-term target remains an in-house computation engine that we control ourselves, most likely a Python/FastAPI service backed by Swiss Ephemeris or an equivalent validated computation stack.
+
+Third-party chart vendors may be used to accelerate MVP learning, but they should be treated as transitional dependencies. A backlog item should track removing long-term reliance on external chart-generation services.
 
 ## Options Considered
 
@@ -53,9 +55,29 @@ Cons:
 - Cannot support real planetary positions, ascendant, nakshatras, houses, divisional charts, or dashas.
 - Risks user or future-agent confusion if labels and UI warnings are weak.
 
-Use for MVP: Yes.
+Use for MVP: Yes, as a fallback path and test harness.
 
-### Option B: JavaScript Astrology Libraries
+### Option B: Third-Party Chart API (for example FreeAstrologyAPI)
+
+Summary: Use an external chart API for short-term MVP chart generation while keeping the app behind a replaceable service boundary.
+
+Pros:
+
+- Fastest path to real chart-like output without building our own engine first.
+- Lets product and UX learn from real-looking chart responses earlier.
+- Can provide SVG chart outputs plus structured planet data, depending on the provider endpoint.
+- Keeps custom computation work off the MVP critical path.
+
+Cons:
+
+- Adds vendor dependency, rate-limit risk, and network dependency.
+- Payload and endpoint behavior may be inconsistent across chart types.
+- Geo lookup, timezone handling, and chart output quality may still need our own guardrails.
+- Long-term reliance would create product and infrastructure risk.
+
+Use for MVP: Yes, temporarily, if wrapped behind our own stable interface and backed by a fallback path.
+
+### Option C: JavaScript Astrology Libraries
 
 Summary: Use a Node-compatible astrology or astronomy package to compute chart-like values directly in the web app.
 
@@ -74,7 +96,7 @@ Cons:
 
 Use for MVP: No. Re-evaluate only after an accuracy spike compares candidates against trusted reference outputs.
 
-### Option C: Python/FastAPI Swiss Ephemeris Integration
+### Option D: Python/FastAPI Swiss Ephemeris Integration
 
 Summary: Build a separate astrology compute service using Python, FastAPI, and `pyswisseph` or another Swiss Ephemeris binding.
 
@@ -193,9 +215,9 @@ export interface ChartService {
 }
 ```
 
-## Placeholder Output Rules
+## Fallback Output Rules
 
-The placeholder implementation should return:
+If the MVP is using a placeholder fallback instead of a live vendor or owned computation engine, it should return:
 
 - `engine.engineName: "arip-placeholder-d1"`
 - `engine.engineKind: "placeholder-d1"`
@@ -207,6 +229,13 @@ The placeholder implementation should return:
 - Stable `conditionTags` suitable only for exercising matcher behavior, for example category-level or input-derived placeholder tags.
 
 It must not fabricate real-looking degrees, nakshatras, dashas, or precise placements.
+
+If the MVP is using a third-party vendor response, the stored chart snapshot should still preserve:
+
+- the vendor engine name
+- the vendor endpoint or chart mode used
+- a stable marker that the result came from an external provider
+- enough metadata to support later replacement or recalculation
 
 ## Location and Timezone Placeholder Policy
 
@@ -225,7 +254,7 @@ Future real computation must add a geocoding and historical timezone resolver be
 
 ## Replacement Requirements for a Real Engine
 
-A production engine can replace the placeholder when it satisfies:
+A production in-house engine can replace the temporary vendor or placeholder path when it satisfies:
 
 - Deterministic output for a fixed input, engine version, ephemeris version, ayanamsa, and house system.
 - Explicit support for sidereal zodiac and chosen ayanamsa, initially expected to be Lahiri unless product/domain review chooses otherwise.
@@ -234,6 +263,7 @@ A production engine can replace the placeholder when it satisfies:
 - Clear error handling for ambiguous place, missing time, invalid date, unsupported geography, and ephemeris failures.
 - Versioned `calculationProfile` so saved chart snapshots can be audited and recalculated later.
 - No dependency from computation code to remedy matching, transcript ingestion, AI prompts, or UI copy.
+- A migration path exists from vendor-generated chart snapshots to owned computation snapshots.
 
 ## Risks
 
@@ -241,15 +271,17 @@ A production engine can replace the placeholder when it satisfies:
 - Accuracy debt: Future matching rules may overfit placeholder tags. Mitigation: keep placeholder tags coarse and mark chart-specific matching as fallback-quality until real computation lands.
 - Timezone ambiguity: Birth time without historical timezone and coordinates cannot support precise ascendant or houses. Mitigation: record resolution mode and do not infer from server settings.
 - Library mismatch: JavaScript libraries may produce inconsistent Vedic outputs. Mitigation: require an accuracy spike before adopting one.
+- Third-party vendor lock-in: MVP success could accidentally turn a temporary dependency into a permanent one. Mitigation: maintain the stable service boundary and track an explicit backlog item for owned computation.
 - Swiss Ephemeris deployment/licensing complexity: Production integration may need ephemeris files and license review. Mitigation: create a dedicated spike before implementation.
 - Privacy exposure: Birth details and chart snapshots are sensitive. Mitigation: avoid routine logging and analytics payloads that include raw birth or full chart data.
 
 ## Suggested Follow-Up Tickets
 
-1. Implement `services/astrology` with the placeholder D1 engine and typed contract from this ADR.
-2. Add chart snapshot persistence and matcher plumbing that consumes `ChartComputationResult` without depending on the placeholder engine internals.
-3. Add a dedicated Python/FastAPI Swiss Ephemeris spike with reference fixtures and deployment notes before any accuracy claims are made.
-4. Add UI copy and test coverage for placeholder labeling, timezone resolution warnings, and sensitive-data logging guardrails.
+1. Implement `services/astrology` with a replaceable provider boundary and typed contract from this ADR.
+2. Add chart snapshot persistence and matcher plumbing that consumes `ChartComputationResult` without depending on vendor internals.
+3. Add a dedicated backlog item for replacing long-term vendor dependence with an owned computation engine.
+4. Add a dedicated Python/FastAPI Swiss Ephemeris spike with reference fixtures and deployment notes before any accuracy claims are made.
+5. Add UI copy and test coverage for vendor/placeholder labeling, timezone resolution warnings, and sensitive-data logging guardrails.
 
 ## Implementation Guidance
 
